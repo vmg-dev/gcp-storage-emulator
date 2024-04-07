@@ -76,6 +76,15 @@ HANDLERS = (
             OPTIONS: objects.options,
         },
     ),
+    (
+        r"^/b/(?P<bucket_name>[-.\w]+)/o/(?P<object_id>.*[^/]+)$",
+        {
+            GET: objects.get,
+            DELETE: objects.delete,
+            PATCH: objects.patch,
+            OPTIONS: objects.options,
+        },
+    ),
     # Non-default API endpoints
     (
         r"^{}/b/(?P<bucket_name>[-.\w]+)/o$".format(settings.UPLOAD_API_ENDPOINT),
@@ -334,7 +343,7 @@ class Router(object):
         for regex, handlers in HANDLERS:
             pattern = re.compile(regex)
             match = pattern.fullmatch(request.path)
-            
+
             if match:
                 request.set_match(match)
                 handler = handlers.get(method)
@@ -355,7 +364,7 @@ class Router(object):
                 "Method not implemented: {} - {}".format(request.method, request.path)
             )
             response.status = HTTPStatus.NOT_IMPLEMENTED
-        
+
         response.close()
 
 
@@ -439,7 +448,6 @@ class Server(object):
         try:
             self.start()
             logger.info("[SERVER] All services started")
-
             while True:
                 try:
                     time.sleep(0.1)
